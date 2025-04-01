@@ -1,14 +1,20 @@
-const express = require('express');
-const app = express();
-const PORT = 5005; // eller 3001 om du föredrar det
+import express from "express";
+import db from "./database/db.js";
 
+const PORT = 3000;
+const app = express();
 app.use(express.json());
 
-// Test-rutt
+// Bonus: Tessaan-test 😎
 app.get('/api/hej', (req, res) => {
-  res.json({ message: 'Hej Tessaan! 🎉 Du är grym!' });
+  res.json({ message: 'Hej Tessaan! 🎉 ' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Servern är igång på http://localhost:${PORT}`);
+app.listen(PORT, (error) => {
+  if (error) {
+    return console.log(`Couldn't start server... Error: ${error}`);
+  }
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
+
 });
