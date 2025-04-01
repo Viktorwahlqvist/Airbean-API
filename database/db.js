@@ -17,7 +17,8 @@ db.prepare(
   `
     CREATE TABLE IF NOT EXISTS orders(
     id INTEGER NOT NULL PRIMARY KEY,
-    order_date INTEGER NOT NULL
+    order_date INTEGER NOT NULL,
+    order_status TEXT NOT NULL DEFAULT 'pending'
     )
 `
 ).run();
