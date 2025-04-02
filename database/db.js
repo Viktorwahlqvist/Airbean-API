@@ -55,6 +55,7 @@ db.prepare(
     desc TEXT,
     price INTEGER,
     in_stock BOOLEAN,
+    is_cold BOOLEAN,
     category_id INTEGER,
     FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE)
 `
