@@ -6,14 +6,13 @@ const PORT = 3000;
 const app = express();
 app.use(express.json());
 
-<<<<<<< HEAD
 app.use("/assortment", assortmentRouter);
-=======
+
 // Bonus: Tessaan-test 😎
 app.get('/api/hej', (req, res) => {
   res.json({ message: 'Hej Tessaan! 🎉 ' });
 });
->>>>>>> main
+
 
 app.listen(PORT, (error) => {
   if (error) {

@@ -108,3 +108,56 @@ export const deleteProduct = (req, res) => {
         res.status(500).json({ error: "Databasfel" });
     }
 };
+
+
+// Kategorier, sortera
+export const getSortedItems = (req, res) => {
+    const sortBy = req.query.sort || "title"; // Sorts by Title as default 
+    const sortOrder = req.query.order && ['asc', 'desc'].includes(req.query.order.toLowerCase()) // Converts provided value to lowercase
+        ? req.query.order.toUpperCase()
+        : 'ASC';
+
+    const { country, type, minPrice, maxPrice } = req.query;
+    let query = "SELECT * FROM items";
+    let params = [];
+    let conditions = [];
+
+    if (country) {
+        conditions.push("country = ?");
+        params.push(country);
+    }
+
+    if (type) {
+        conditions.push("type = ?");
+        params.push(type);
+    }
+
+    if (minPrice) {
+        conditions.push("price >= ?");
+        params.push(minPrice);
+    }
+
+    if (maxPrice) {
+        conditions.push("price <= ?");
+        params.push(maxPrice);
+    }
+
+    if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
+    }
+
+    query += ` ORDER BY ${sortBy} ${sortOrder}`;
+
+    try {
+        const stmt = db.prepare(query);
+        const items = stmt.all(...params); // More than one value accepted
+
+        if (items.length === 0) {
+            return res.status(404).json({ message: "Hittade inga kategorier" });
+        }
+
+        res.json(items); // Sends back response as json
+    } catch (error) {
+        res.status(500).json({ error: "Databasfel" });
+    }
+};
