@@ -1,10 +1,10 @@
-import db from "../db.js"; // Importerar databasen 
+import db from "../database/db.js"; // Importerar databasen
 
 
 // GET för att hämta alla produkter
 export const getAllProducts = (req, res) => {
     try {
-        const stmt = db.prepare("SELECT * FROM items");
+        const stmt = db.prepare("SELECT title, desc, price FROM items ORDER BY title ASC"); // Bokstavsordning (kategori) 
         const products = stmt.all(); // Hämtar allar produkter
 
         if (products.length === 0) {
@@ -27,7 +27,7 @@ export const addProduct = (req, res) => {
 
     try {
         const stmt = db.prepare(
-            "INSERT INTO products (title, desc, price) VALUES (?, ?, ?)"
+            "INSERT INTO items (title, desc, price) VALUES (?, ?, ?)"
         );
         const result = stmt.run(title, desc, price); //prepare för säker inmatning
 
@@ -37,7 +37,31 @@ export const addProduct = (req, res) => {
     }
 };
 
-// PUT 
+// PUT för att ersätta en produkt med helt nytt innehåll
+export const replaceProduct = (req, res) => {
+    const { id } = req.params;
+    const { title, desc, price } = req.body;
+
+    if (!title || !desc || !price) {
+        return res.status(400).json({ error: "Alla fält (title, desc, price) måste vara med" });
+    }
+
+    try {
+        const existingProduct = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
+        if (!existingProduct) {
+            return res.status(404).json({ error: "Produkt hittades inte" });
+        }
+
+        const stmt = db.prepare(
+            "UPDATE items SET title = ?, `desc` = ?, price = ? WHERE id = ?"
+        );
+        stmt.run(title, desc, price, id);
+
+        res.status(200).json({ message: "Produkten har ersatts med ny data" });
+    } catch (error) {
+        res.status(500).json({ error: "Databasfel" });
+    }
+};
 
 
 // PATCH för att updatera produkt via ID
@@ -56,7 +80,7 @@ export const updateProduct = (req, res) => {
         }
 
         const stmt = db.prepare(
-            "UPDATE products SET title = ?, desc = ?, price = ? WHERE id = ?"
+            "UPDATE items SET title = ?, desc = ?, price = ? WHERE id = ?"
         );
         stmt.run(title || existingProduct.title, desc || existingProduct.desc, price || existingProduct.price, id);
 

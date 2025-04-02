@@ -1,5 +1,5 @@
 import express from "express"; 
-import { getAllProducts, addProduct, updateProduct, deleteProduct } from "../controllers/assortmentController.js";
+import { getAllProducts, addProduct, updateProduct, deleteProduct, replaceProduct } from "../controllers/assortmentController.js";
 
 
 
@@ -13,6 +13,7 @@ assortmentRouter.get("/", getAllProducts);
 assortmentRouter.post("/", addProduct);
 
 //PUT
+assortmentRouter.put("/:id", replaceProduct);
 
 // PATCH, updatera produkt med id
 assortmentRouter.patch("/:id", updateProduct);

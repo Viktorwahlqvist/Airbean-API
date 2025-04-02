@@ -1,6 +1,6 @@
 import express from "express";
 import db from "./database/db.js";
-import assortmentRouter from "./routes/assortmentRoutes.js";
+import { assortmentRouter } from "./routes/assortmentRoutes.js";
 
 const PORT = 3000;
 const app = express();
