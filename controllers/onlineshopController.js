@@ -84,12 +84,65 @@ export const patchMenu = (req, res) => {
 export const putMenu = (req, res) => {};
 
 //  (DELETE) ta bort från menyn med id
-export const deleteMenu = (req, res) => {};
+export const deleteMenu = (req, res) => {
+  // Skapa en validering i middlewares för alla ID och skapa req.id
+  if (!req.id) {
+    return res.status(400).json({ error: `No ID` });
+  }
+
+  try {
+    const stmt = db.prepare(`
+      DELETE FROM items WHERE id = ?`);
+    const result = stmt.run(req.id);
+    if (!result.changes) {
+      return res.status(404).json({ error: `No item with ID ${req.id}` });
+    }
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // Controllers för *Cateories*
 
 // (GET) Controllers för hämta alla categories, eller visa alla produkter med en viss kateori.
-export const getCategories = (req, res) => {};
+export const getCategories = (req, res) => {
+  const query = req.params.q;
+
+  if (query.trim() !== "" || query) {
+    try {
+      const stmt = db.prepare(`
+        SELECT items.title, items.desc, items.price, category.name 
+        FROM items
+        JOIN category ON items.category_id = category.id
+        WHERE category.name = ?
+    `);
+      const result = stmt.all(query);
+      if (result.length === 0) {
+        return res.status(400).json({ error: "No result with that category" });
+      }
+      res.status(200).json({ result });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    try {
+      const stmt = db.prepare(`
+        SELECT * FROM category`);
+      const result = stmt.all();
+
+      if (result.length === 0) {
+        return res.status(400).json({ error: `No categorys` });
+      }
+      res.status(200).json({ result });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: error.messag });
+    }
+  }
+};
 
 // (POST) Controller för att lägga till i categories
 export const addToCategories = (req, res) => {
@@ -118,13 +171,56 @@ export const addToCategories = (req, res) => {
 };
 
 // (PATCH) controller för att ändra en eller flera saker i categories men inte hela.
-export const patchCategories = (req, res) => {};
+export const patchCategories = (req, res) => {
+  // Middleware validering och parse för ID
+  const { name } = req.body;
+  if (!req.id) {
+    return res.status(400).json({ error: `No ID` });
+  }
+  if (!name || name.trim() !== "" || typeof name !== "string") {
+    return res
+      .status(400)
+      .json({ error: `Name is required and must be a string` });
+  }
+  try {
+    const stmt = db.prepare(`
+      UPDATE category SET name = ? WHERE id = ?`);
+    const result = stmt.run(name, req.id);
 
-// (PUT) controller för att ändra hela resursen i categories
-export const putCategories = (req, res) => {};
+    if (!result.changes) {
+      return res
+        .status(404)
+        .json({ error: `Couldn't update category with ID ${req.id}` });
+    }
+    res
+      .status(200)
+      .json({ message: `Category with ID ${req.id} succesfully updated` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // (DELETE) controller för att ta bort en kategori
-export const deleteCategories = (req, res) => {};
+export const deleteCategories = (req, res) => {
+  // Skapa en validering i middlewares för alla ID och skapa req.id
+  if (!req.id) {
+    return res.status(400).json({ error: `No ID` });
+  }
+
+  try {
+    const stmt = db.prepare(`
+      DELETE FROM category WHERE id = ?`);
+    const result = stmt.run(req.id);
+    if (!result.changes) {
+      return res.status(404).json({ error: `No category with ID ${req.id}` });
+    }
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // Controllers för *cold*
 

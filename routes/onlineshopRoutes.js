@@ -25,10 +25,10 @@ OnlineShopRouter.get("/menu", getMenu);
 OnlineShopRouter.post("/menu", addToMenu);
 
 // Route med controller för att ändra en sak eller fler i menyn men inte hela
-OnlineShopRouter.patch("/menu", patchMenu);
+OnlineShopRouter.patch("/menu/:id", patchMenu);
 
 // Route med controller för att ersätta hela (kaffe sorten) i menyn
-OnlineShopRouter.put("/menu", putMenu);
+OnlineShopRouter.put("/menu/:id", putMenu);
 
 // Route med controller för att ta bort en från menyn med ID
 OnlineShopRouter.delete("/menu/:id", deleteMenu);
@@ -43,10 +43,7 @@ OnlineShopRouter.get("/categories", getCategories);
 OnlineShopRouter.post("/categories", addToCategories);
 
 // Route med controller för ändra en sak eller fler i categories men inte hela.
-OnlineShopRouter.patch("/categories", patchCategories);
-
-// Route med controller för att ersätta hela categories (en men hela resursen.)
-OnlineShopRouter.put("/categories", putCategories);
+OnlineShopRouter.patch("/categories/:id", patchCategories);
 
 // Route med controller för att ta bort en kategori
 OnlineShopRouter.delete("/categories/:id", deleteCategories);
