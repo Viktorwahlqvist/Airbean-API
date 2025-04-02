@@ -108,9 +108,11 @@ export const deleteMenu = (req, res) => {
 
 // (GET) Controllers för hämta alla categories, eller visa alla produkter med en viss kateori.
 export const getCategories = (req, res) => {
-  const query = req.params.q;
+  const query = req.query.q;
 
-  if (query.trim() !== "" || query) {
+  console.log(`type `, typeof query);
+
+  if (query && query.trim() !== "") {
     try {
       const stmt = db.prepare(`
         SELECT items.title, items.desc, items.price, category.name 
@@ -118,7 +120,7 @@ export const getCategories = (req, res) => {
         JOIN category ON items.category_id = category.id
         WHERE category.name = ?
     `);
-      const result = stmt.all(query);
+      const result = stmt.all(query.trim());
       if (result.length === 0) {
         return res.status(400).json({ error: "No result with that category" });
       }
@@ -136,7 +138,7 @@ export const getCategories = (req, res) => {
       if (result.length === 0) {
         return res.status(400).json({ error: `No categorys` });
       }
-      res.status(200).json({ result });
+      res.status(200).json(result);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: error.messag });
@@ -155,7 +157,7 @@ export const addToCategories = (req, res) => {
   }
   try {
     const stmt = db.prepare(`
-      INSERT INTO categories (name) VALUES (?)`);
+      INSERT INTO category (name) VALUES (?)`);
     const result = stmt.run(name);
     // Om det inte blev tillagt så är result.changes eftersom in ändringar gjordes.
     if (!result.changes) {
@@ -204,6 +206,8 @@ export const patchCategories = (req, res) => {
 // (DELETE) controller för att ta bort en kategori
 export const deleteCategories = (req, res) => {
   // Skapa en validering i middlewares för alla ID och skapa req.id
+  // Lägger till req.id för test.
+  req.id = req.params.id;
   if (!req.id) {
     return res.status(400).json({ error: `No ID` });
   }

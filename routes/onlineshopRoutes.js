@@ -10,7 +10,6 @@ import {
   getMenu,
   patchCategories,
   patchMenu,
-  putCategories,
   putMenu,
 } from "../controllers/onlineshopController.js";
 
