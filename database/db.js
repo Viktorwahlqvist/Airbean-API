@@ -7,10 +7,8 @@ db.prepare(
     CREATE TABLE IF NOT EXISTS users(
     id INTEGER NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    order_id INTEGER NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE)
-`
+    email TEXT NOT NULL
+)`
 ).run();
 
 db.prepare(
@@ -18,9 +16,10 @@ db.prepare(
     CREATE TABLE IF NOT EXISTS orders(
     id INTEGER NOT NULL PRIMARY KEY,
     order_date INTEGER NOT NULL,
-    order_status TEXT NOT NULL DEFAULT 'pending'
-    )
-`
+    user_id INTEGER NOT NULL,
+    order_status TEXT NOT NULL DEFAULT 'pending',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)`
 ).run();
 
 db.prepare(
