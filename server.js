@@ -8,13 +8,12 @@ app.use(express.json());
 
 app.use("/api", userRoutes);
 
-
 app.listen(PORT, (error) => {
   if (error) {
-    return console.log(`Couldn't start server...
-      Error: ${error}`);
+    return console.log(`Couldn't start server... Error: ${error}`);
   }
   console.log(`Server is running on http://localhost:${PORT}`);
+
 });
 
 app.get("/", (req,res) => {

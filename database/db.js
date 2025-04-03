@@ -6,12 +6,10 @@ const db = new Database("./database/database.db", { verbose: console.log });
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS users(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    order_id INTEGER,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL)
-`
+    email TEXT NOT NULL
+)`
 ).run();
 
 
@@ -21,9 +19,10 @@ db.prepare(
     CREATE TABLE IF NOT EXISTS orders(
     id INTEGER NOT NULL PRIMARY KEY,
     order_date INTEGER NOT NULL,
-    order_status TEXT NOT NULL DEFAULT 'pending'
-    )
-`
+    user_id INTEGER NOT NULL,
+    order_status TEXT NOT NULL DEFAULT 'pending',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+)`
 ).run();
 
 //User_auth table
@@ -31,8 +30,8 @@ db.prepare(
   `
     CREATE TABLE IF NOT EXISTS user_auth(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    username TEXT NOT NULL UNIQUE,
+    user_id TEXT NOT NULL,
+    username TEXT NOT NULL,
     password TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -62,6 +61,7 @@ db.prepare(
     desc TEXT,
     price INTEGER,
     in_stock BOOLEAN,
+    is_cold BOOLEAN,
     category_id INTEGER,
     FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE)
 `
