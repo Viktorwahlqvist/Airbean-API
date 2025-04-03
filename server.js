@@ -1,11 +1,13 @@
 import express from "express";
 import db from "./database/db.js";
+import userRoutes from "./routes/userRoutes.js"
 
 const PORT = 3000;
 const app = express();
 app.use(express.json());
 
-app.use("/user", )
+app.use("/api", userRoutes);
+
 
 app.listen(PORT, (error) => {
   if (error) {

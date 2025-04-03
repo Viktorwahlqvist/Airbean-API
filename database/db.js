@@ -2,17 +2,20 @@ import Database from "better-sqlite3";
 
 const db = new Database("./database/database.db", { verbose: console.log });
 
+//Users table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS users(
-    id INTEGER NOT NULL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    order_id INTEGER NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE)
+    email TEXT NOT NULL UNIQUE,
+    order_id INTEGER,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL)
 `
 ).run();
 
+
+//Orders table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS orders(
@@ -23,19 +26,21 @@ db.prepare(
 `
 ).run();
 
+//User_auth table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS user_auth(
-    id INTEGER PRIMARY KEY NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    username TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    created_at DEFAULT CURRENT_TIMESTAMP,
-    updated_at DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)
 `
 ).run();
 
+//Order_item table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS order_items(
@@ -48,6 +53,7 @@ db.prepare(
 `
 ).run();
 
+//items table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS items(
@@ -61,6 +67,7 @@ db.prepare(
 `
 ).run();
 
+//category table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS category(

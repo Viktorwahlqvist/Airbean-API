@@ -1,13 +1,17 @@
 import express from "express";
-import { addUser, deleteUser, patchUser, postUser, getUsers, getUser } from "../controllers/userController";
+import { addUser, deleteUser, patchUser, getUsers, getUser } from "../controllers/userController.js";
 
-export const userRoute = express.Router();
+const userRoutes = express.Router();
+
+// GET requests med routes
+
+userRoutes.get("/user:id", getUser); //Hämta specifik användare
+userRoutes.get("/users", getUsers); //Hämta alla användare
+
+// POST request med routes
+userRoutes.post("/users", addUser); //Skapa en användare
+
+// PATCH request med routes
 
 
-userRoute.get("/user", getUser);
-
-userRoute.post("/user", addUser);
-
-userRoute.get("/users", getUsers);
-
-
+export default userRoutes
