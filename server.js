@@ -1,3 +1,4 @@
+import requestId from "./middlewares/requestId.js";
 import express from "express";
 import cors from "cors"; // om vi behöver det??
 import onlineshopRoutes from "./routes/onlineshopRoutes.js";
@@ -12,6 +13,8 @@ const PORT = 3000;
 // Middleware
 app.use(cors()); 
 app.use(express.json());
+app.use(requestId);
+
 
 // Routes
 app.use("/onlineshop", onlineshopRoutes);
