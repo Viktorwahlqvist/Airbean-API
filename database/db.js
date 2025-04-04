@@ -2,15 +2,18 @@ import Database from "better-sqlite3";
 
 const db = new Database("./database/database.db", { verbose: console.log });
 
+//Users table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS users(
-    id INTEGER NOT NULL PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT NOT NULL
 )`
 ).run();
 
+
+//Orders table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS orders(
@@ -22,19 +25,21 @@ db.prepare(
 )`
 ).run();
 
+//User_auth table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS user_auth(
-    id INTEGER PRIMARY KEY NOT NULL,
-    user_id INTEGER NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
-    created_at DEFAULT CURRENT_TIMESTAMP,
-    updated_at DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)
 `
 ).run();
 
+//Order_item table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS order_items(
@@ -47,6 +52,7 @@ db.prepare(
 `
 ).run();
 
+//items table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS items(
@@ -61,6 +67,7 @@ db.prepare(
 `
 ).run();
 
+//category table
 db.prepare(
   `
     CREATE TABLE IF NOT EXISTS category(
