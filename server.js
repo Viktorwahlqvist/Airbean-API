@@ -27,7 +27,4 @@ app.get("/", (req, res) => {
   res.send("🚀 Airbean API är igång!");
 });
 
-// Starta servern
-app.listen(PORT, () => {
-  console.log(`✅ Servern körs på http://localhost:${PORT}`);
-});
+
