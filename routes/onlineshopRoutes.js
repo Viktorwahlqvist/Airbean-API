@@ -1,4 +1,5 @@
 import express from "express";
+<<<<<<< HEAD
 import {
   addItemToCart,
   addToCategories,
@@ -70,3 +71,12 @@ OnlineShopRouter.get("/cart", getCart);
 OnlineShopRouter.post("/cart", addItemToCart);
 
 OnlineShopRouter.put("/cart/:orderId/:itemId");
+=======
+import { getMenu } from "../controllers/onlineshopController.js";
+
+const router = express.Router();
+
+router.get("/meny", getMenu);
+
+export default router;
+>>>>>>> origin
