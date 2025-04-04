@@ -1,10 +1,14 @@
+import requestId from "./middlewares/requestId.js";
 import express from "express";
 import db from "./database/db.js";
 import userRoutes from "./routes/userRoutes.js"
+import { aboutRouter } from "./routes/aboutRoutes.js";
 
-const PORT = 3000;
+// Initiera appen
 const app = express();
-app.use(express.json());
+const PORT = 3000;
+
+app.use("/about", aboutRouter);
 
 app.use("/api", userRoutes);
 
