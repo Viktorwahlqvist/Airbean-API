@@ -21,13 +21,3 @@ app.use("/onlineshop", onlineshopRoutes);
 app.use("/sortiment", assortmentRoutes);
 app.use("/about", aboutRoutes);
 app.use("/users", userRoutes);
-
-// Testa om servern är igång
-app.get("/", (req, res) => {
-  res.send("🚀 Airbean API är igång!");
-});
-
-// Starta servern
-app.listen(PORT, () => {
-  console.log(`✅ Servern körs på http://localhost:${PORT}`);
-});
