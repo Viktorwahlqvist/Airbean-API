@@ -45,7 +45,7 @@ Framgångsrikt svar (201 Created)
 
 Fel (400- Saknade fält)
 {
-  "error": "Alla fält måste fyllas inn"
+  "error": "Alla fält måste fyllas i"
 }
 
 

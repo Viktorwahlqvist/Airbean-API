@@ -22,7 +22,7 @@ export const addProduct = (req, res) => {
     const { title, desc, price } = req.body; //Object
 
     if (!title || !desc || !price) {
-        return res.status(400).json({ error: "Alla fält måste fyllas inn"});
+        return res.status(400).json({ error: "Alla fält måste fyllas i"});
     }
 
     try {
