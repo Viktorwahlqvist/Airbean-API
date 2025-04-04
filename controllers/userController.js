@@ -118,3 +118,5 @@ export const deleteUserById = (req, res) => {
 export const patchUser = (req, res) => {
   
 };
+
+// Hämta kopplade ordrar till id
