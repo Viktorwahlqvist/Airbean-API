@@ -1,9 +1,11 @@
 import express from "express";
 import {
+  addItemToCart,
   addToCategories,
   addToMenu,
   deleteCategories,
   deleteMenu,
+  getCart,
   getCategories,
   getCold,
   getHot,
@@ -14,8 +16,9 @@ import {
 } from "../controllers/onlineshopController.js";
 
 export const OnlineShopRouter = express.Router();
-
+// *******************************
 // Alla routes för endpoint *menu*
+// *******************************
 
 // Route med controller för hämta menyn.
 OnlineShopRouter.get("/menu", getMenu);
@@ -32,7 +35,9 @@ OnlineShopRouter.put("/menu/:id", putMenu);
 // Route med controller för att ta bort en från menyn med ID
 OnlineShopRouter.delete("/menu/:id", deleteMenu);
 
+// *************************************
 // Alla routes för endpoint *categories*
+// *************************************
 
 // Route med controller för att hämta alla sorter inom en specifik categories -
 // Eller visa alla olika categories som finns ?
@@ -47,10 +52,21 @@ OnlineShopRouter.patch("/categories/:id", patchCategories);
 // Route med controller för att ta bort en kategori
 OnlineShopRouter.delete("/categories/:id", deleteCategories);
 
-// Alla routes för endpoint *cold*
-
+// *************************************
+// Alla routes för endpoint *cold*/*hot*
+// *************************************
 // Route med controller för hämta alla kalla drycker
 OnlineShopRouter.get("/cold", getCold);
 
-// Alla route sför endpoint *hot*
+// Route med controller för hämta alla varma drycker
 OnlineShopRouter.get("/hot", getHot);
+
+// ***********************************
+// Alla routes för endpoint Varukorg.
+// ***********************************
+
+OnlineShopRouter.get("/cart", getCart);
+
+OnlineShopRouter.post("/cart", addItemToCart);
+
+OnlineShopRouter.put("/cart/:orderId/:itemId");

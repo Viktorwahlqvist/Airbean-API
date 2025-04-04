@@ -305,3 +305,87 @@ export const getHot = (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Controllerför varukorg
+export const getCart = (req, res) => {};
+
+// Controller för lägga till vara i varukorgen.
+export const addItemToCart = (req, res) => {
+  // Tillfällig tills vi har en middlware
+  const { user_id, items } = req.body;
+
+  /* Validering för att koll så användaren har skickat in 
+     ett user_id samt en array med items som ska innehålla item_id + quantity*/
+  if (!user_id || !Array.isArray(items) || items.at.length === 0) {
+    return res
+      .status(400)
+      .json({ error: `User_id is required and items as an array` });
+  }
+  /* förbereder 2 statement så vi kan köra med transaction. eftersom att vi vill
+  kunna få rollback om en av insert inte går igenom. */
+  const stmtOrder = db.prepare(`
+    INSERT INTO orders (order_date, user_id) VALUES (strftime('%s','now'), ?)`);
+
+  const stmtItems = db.prepare(`
+    INSERT INTO order_items (order_id, item_id, quantity) VALUES(?, ?, ?)`);
+
+  const transaction = (db.transaction = (user_id, items) => {
+    const result = stmtOrder.run(user_id);
+    const orderId = result.lastInsertRowid;
+    /*Valde det skulle vara en array så vi kunde mappa igenom varje object även 
+    det bara är ett objekt så ska det ligga i en array.*/
+    items.map((item) => {
+      // Om någon av items id eller item quatity i ett objekt så skrivs fel ut.
+      if (!item.item.id || !item.quantity) {
+        return req.status(400).json({ error: `Missin item or quantity.` });
+      }
+      // Annars läggs varje object till tills vi har mappat igenom alla.
+      const resultItems = stmtItems.run(orderId, item.id, item.quantity);
+    });
+    // Return orderId så vi kan spara orderid när vi kör våran transaction.
+    return orderId;
+  });
+  try {
+    const newOrderId = transaction(user_id, items);
+
+    res
+      .status(201)
+      .json({ message: `Order succesffully created, Order ID: ${newOrderId}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.messag });
+  }
+};
+
+// Controller för att ändra i varukorgen.
+
+export const patchItemInCart = (req, res) => {
+  const { orderId, itemId } = req.params;
+  const { quantity } = req.body;
+
+  if (!orderId || !itemId) {
+    return res.status(400).json({ error: `Missing order id or item id` });
+  }
+
+  if (typeof quantity !== "number") {
+    return res.status(400).json({ error: `Quantity must be of type Number` });
+  }
+  if (quantity < 0) {
+    res
+      .status(400)
+      .json({ error: `Can't update Quantity to a negative number.` });
+  }
+  try {
+    if (quantity === 0) {
+      const stmt = db.prepare(`DELETE FROM order_items WHERE item_id = ?`);
+      const result = stmt.run(itemId);
+      if (!result.changes) {
+        return res.status(404).json({
+          error: `Couldn't update quantity for item with ID: ${itemId}`,
+        });
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
