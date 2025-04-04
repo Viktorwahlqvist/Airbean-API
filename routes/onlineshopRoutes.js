@@ -1,5 +1,4 @@
 import express from "express";
-<<<<<<< HEAD
 import {
   addItemToCart,
   addToCategories,
@@ -15,6 +14,7 @@ import {
   patchMenu,
   putMenu,
 } from "../controllers/onlineshopController.js";
+import { idValidation } from "../middlewares/validation.js";
 
 export const OnlineShopRouter = express.Router();
 // *******************************
@@ -28,13 +28,13 @@ OnlineShopRouter.get("/menu", getMenu);
 OnlineShopRouter.post("/menu", addToMenu);
 
 // Route med controller för att ändra en sak eller fler i menyn men inte hela
-OnlineShopRouter.patch("/menu/:id", patchMenu);
+OnlineShopRouter.patch("/menu/:id", idValidation, patchMenu);
 
 // Route med controller för att ersätta hela (kaffe sorten) i menyn
-OnlineShopRouter.put("/menu/:id", putMenu);
+OnlineShopRouter.put("/menu/:id", idValidation, putMenu);
 
 // Route med controller för att ta bort en från menyn med ID
-OnlineShopRouter.delete("/menu/:id", deleteMenu);
+OnlineShopRouter.delete("/menu/:id", idValidation, deleteMenu);
 
 // *************************************
 // Alla routes för endpoint *categories*
@@ -48,10 +48,10 @@ OnlineShopRouter.get("/categories", getCategories);
 OnlineShopRouter.post("/categories", addToCategories);
 
 // Route med controller för ändra en sak eller fler i categories men inte hela.
-OnlineShopRouter.patch("/categories/:id", patchCategories);
+OnlineShopRouter.patch("/categories/:id", idValidation, patchCategories);
 
 // Route med controller för att ta bort en kategori
-OnlineShopRouter.delete("/categories/:id", deleteCategories);
+OnlineShopRouter.delete("/categories/:id", idValidation, deleteCategories);
 
 // *************************************
 // Alla routes för endpoint *cold*/*hot*
@@ -70,13 +70,4 @@ OnlineShopRouter.get("/cart", getCart);
 
 OnlineShopRouter.post("/cart", addItemToCart);
 
-OnlineShopRouter.put("/cart/:orderId/:itemId");
-=======
-import { getMenu } from "../controllers/onlineshopController.js";
-
-const router = express.Router();
-
-router.get("/meny", getMenu);
-
-export default router;
->>>>>>> origin
+OnlineShopRouter.patch("/cart/:orderId/:itemsId");

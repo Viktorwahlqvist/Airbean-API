@@ -43,7 +43,9 @@ export const addToMenu = (req, res) => {
 export const patchMenu = (req, res) => {
   const { title, desc, price, in_stock, category_id } = req.body;
   // Id validering middleware, tillfällig för test
-  const { id } = req.params;
+  if (!req.id) {
+    return res.status(400).json({ error: `No ID` });
+  }
   // Validering kommer med middleware.
   //array för det som updateras.
   const updates = [];
@@ -69,7 +71,7 @@ export const patchMenu = (req, res) => {
     updates.push("category_id = ?");
     params.push(category_id);
   }
-  params.push(id);
+  params.push(req.id);
   try {
     const stmt = db.prepare(
       `UPDATE items SET ${updates.join(", ")} WHERE id = ?`
@@ -91,9 +93,11 @@ export const patchMenu = (req, res) => {
 export const putMenu = (req, res) => {
   // Validering i middleware samma som addtoMenu
   // id middleware lägger till en för test
-  const { id } = req.params;
-  const { title, desc, price, in_stock, is_cold, category_id } = req.body;
 
+  const { title, desc, price, in_stock, is_cold, category_id } = req.body;
+  if (!req.id) {
+    return res.status(400).json({ error: `No ID` });
+  }
   try {
     const stmt = db.prepare(`
       UPDATE items SET title = ?, desc = ?, price = ?, in_stock = ?, is_cold = ?, category_id = ?
@@ -105,16 +109,16 @@ export const putMenu = (req, res) => {
       in_stock,
       is_cold,
       category_id,
-      id
+      req.id
     );
     if (!result.changes) {
       return res
         .status(404)
-        .json({ error: `Couldn¨t update item with ID ${id}` });
+        .json({ error: `Couldn¨t update item with ID ${req.id}` });
     }
     res
       .status(200)
-      .json({ message: `Ìtem with ID ${id} sucessfully updated ` });
+      .json({ message: `Ìtem with ID ${req.id} sucessfully updated ` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -123,9 +127,6 @@ export const putMenu = (req, res) => {
 
 //  (DELETE) ta bort från menyn med id
 export const deleteMenu = (req, res) => {
-  // Skapa en validering i middlewares för alla ID och skapa req.id
-  // Tillfällig id för test
-  req.id = req.params.id;
   if (!req.id) {
     return res.status(400).json({ error: `No ID` });
   }
@@ -245,9 +246,6 @@ export const patchCategories = (req, res) => {
 
 // (DELETE) controller för att ta bort en kategori
 export const deleteCategories = (req, res) => {
-  // Skapa en validering i middlewares för alla ID och skapa req.id
-  // Lägger till req.id för test.
-  req.id = req.params.id;
   if (!req.id) {
     return res.status(400).json({ error: `No ID` });
   }

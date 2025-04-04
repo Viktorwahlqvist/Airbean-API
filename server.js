@@ -1,4 +1,3 @@
-import requestId from "./middlewares/requestId.js";
 import express from "express";
 import db from "./database/db.js";
 import { OnlineShopRouter } from "./routes/onlineshopRoutes.js";
@@ -8,9 +7,10 @@ import { aboutRouter } from "./routes/aboutRoutes.js";
 const app = express();
 const PORT = 3000;
 
+app.use(express.json());
 app.use("/about", aboutRouter);
 
-// Bonus: Tessaan-test 😎
+// Bonus: Tessaan-Test 😎
 app.get("/api/hej", (req, res) => {
   res.json({ message: "Hej Tessaan! 🎉 " });
 });
