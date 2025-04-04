@@ -1,21 +1,18 @@
 import express from "express";
-const router = express.Router();
+import { addUser, deleteUserById, patchUser, getUsers, getUserById } from "../controllers/userController.js";
 
-// Importera middleware
-import { idValidation } from "../middlewares/validation.js";
+const userRoutes = express.Router();
 
-// (Exempel) importera din controller
-import { getUserById, deleteUser } from "../controllers/userController.js";
+// GET requests med routes
+userRoutes.get("/users", getUsers); //Hämta alla användare
+userRoutes.get("/users/:id", getUserById) // Hämta en användare med Id
 
-// En route som hämtar en användare med ID
-router.get("/users/:id", idValidation, getUserById);
+// POST request med routes
+userRoutes.post("/users", addUser); //Skapa en användare
 
-// En route som tar bort en användare med ID
-router.delete("/users/:id", idValidation, deleteUser);
+// PATCH request med routes
 
-// Testroute
-router.get("/", (req, res) => {
-  res.send("User-routes funkar!");
-});
+// DELETE request med routes
+userRoutes.delete("/users/:id", deleteUserById);
 
-export default router;
+export default userRoutes
