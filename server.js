@@ -1,10 +1,13 @@
+import requestId from "./middlewares/requestId.js";
 import express from "express";
 import db from "./database/db.js";
 import { assortmentRouter } from "./routes/assortmentRoutes.js";
+import userRoutes from "./routes/userRoutes.js"
+import { aboutRouter } from "./routes/aboutRoutes.js";
 
-const PORT = 3000;
+// Initiera appen
 const app = express();
-app.use(express.json());
+const PORT = 3000;
 
 app.use("/assortment", assortmentRouter);
 
@@ -12,6 +15,9 @@ app.use("/assortment", assortmentRouter);
 app.get('/api/hej', (req, res) => {
   res.json({ message: 'Hej Tessaan! 🎉 ' });
 });
+app.use("/about", aboutRouter);
+
+app.use("/api", userRoutes);
 
 
 app.listen(PORT, (error) => {
@@ -19,4 +25,9 @@ app.listen(PORT, (error) => {
     return console.log(`Couldn't start server... Error: ${error}`);
   }
   console.log(`Server is running on http://localhost:${PORT}`);
+
+});
+
+app.get("/", (req,res) => {
+  res.send("Välkommen till AIRBEAN-API")
 });
