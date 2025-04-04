@@ -1,9 +1,12 @@
 import express from "express";
 import db from "./database/db.js";
+import { aboutRouter } from "./routes/aboutRoutes.js";
 
 const PORT = 3000;
 const app = express();
 app.use(express.json());
+
+app.use("/about", aboutRouter);
 
 // Bonus: Tessaan-test 😎
 app.get('/api/hej', (req, res) => {
