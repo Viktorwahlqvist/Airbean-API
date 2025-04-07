@@ -311,10 +311,12 @@ export const getCart = (req, res) => {};
 export const addItemToCart = (req, res) => {
   // Tillfällig tills vi har en middlware
   const { user_id, items } = req.body;
+  console.log(user_id, items);
+  console.log("körs");
 
   /* Validering för att koll så användaren har skickat in 
      ett user_id samt en array med items som ska innehålla item_id + quantity*/
-  if (!user_id || !Array.isArray(items) || items.at.length === 0) {
+  if (!user_id || !Array.isArray(items) || items.length === 0) {
     return res
       .status(400)
       .json({ error: `User_id is required and items as an array` });
@@ -334,11 +336,11 @@ export const addItemToCart = (req, res) => {
     det bara är ett objekt så ska det ligga i en array.*/
     items.map((item) => {
       // Om någon av items id eller item quatity i ett objekt så skrivs fel ut.
-      if (!item.item.id || !item.quantity) {
-        return req.status(400).json({ error: `Missin item or quantity.` });
+      if (!item.item_id || !item.quantity) {
+        return res.status(400).json({ error: `Missin item or quantity.` });
       }
       // Annars läggs varje object till tills vi har mappat igenom alla.
-      const resultItems = stmtItems.run(orderId, item.id, item.quantity);
+      const resultItems = stmtItems.run(orderId, item.item_id, item.quantity);
     });
     // Return orderId så vi kan spara orderid när vi kör våran transaction.
     return orderId;
@@ -351,7 +353,7 @@ export const addItemToCart = (req, res) => {
       .json({ message: `Order succesffully created, Order ID: ${newOrderId}` });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.messag });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -382,8 +384,49 @@ export const patchItemInCart = (req, res) => {
           error: `Couldn't update quantity for item with ID: ${itemId}`,
         });
       }
+      return res.status(204).send();
     }
+    const stmt = db.prepare(`
+      UPDATE order_items SET quantity = ? WHERE item_id = ?`);
+    const result = stmt.run(itemId, quantity);
+
+    if (!result.changes) {
+      return res
+        .status(404)
+        .json({ error: `Couldn't update quantity With ID ${itemId}` });
+    }
+    res
+      .status(200)
+      .json({ message: `Updated Item ID: ${itemId}, Quantity : ${quantity}` });
   } catch (error) {
     console.error(error);
+  }
+};
+
+// Controller för att ta bort en vara i ordern.
+
+export const deleteItemFromCart = (req, res) => {
+  const { itemId } = req.params;
+  console.log(itemId);
+
+  if (!itemId) {
+    return res.status(400).json({ error: `Missing item id` });
+  }
+
+  try {
+    const stmt = db.prepare(`
+      DELETE FROM order_items WHERE item_id = ?`);
+
+    const result = stmt.run(itemId);
+
+    if (!result.changes) {
+      return res.status(404).json({
+        error: `Couldnt Delete item from order with item ID: ${itemId}`,
+      });
+    }
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.messag });
   }
 };
