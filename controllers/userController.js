@@ -2,7 +2,7 @@ import { nanoid } from "nanoid";
 import db from "../database/db.js";
 
 // Lägga till en ny användare
-export const addUser = (req, res) => {
+export const addUser = async (req, res) => {
   const { name, username, email, password } = req.body;
   const userId = nanoid();
 
@@ -20,13 +20,17 @@ export const addUser = (req, res) => {
       "INSERT INTO user_auth (user_id, username, password) VALUES (?,?,?)"
     );
 
+    //Skapar en krypterad verison av lösenordet. Krypterar alltså angivet lösenord samt gör 10 st salt turnes, blandar om och förvränger lösenordet.
+    //Kommer alltså aldrig visa det verkliga lösenordet i databasen för användarens säkerhet.
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Transaction för att göra det möjligt att ha inlogg och användarinformation på samma endpoint.
     // Transaction körs och kollar så att operationerna går ihop annars funkar det inte att lägga till användare.
     const transaction = db.transaction(() => {
       console.log(userId);
 
       const resultUsers = stmtUsers.run(userId, name, email);
-      const resultUsers_auth = stmtUsers_auth.run(userId, username, password);
+      const resultUsers_auth = stmtUsers_auth.run(userId, username, hashedPassword);
 
       // Error meddelande om användare inte kan läggas till
       if (resultUsers.changes === 0 || resultUsers_auth.changes === 0) {
@@ -113,7 +117,7 @@ export const deleteUserById = (req, res) => {
   }
 };
 
-  // Ändra viss information kring användare
+// Ändra viss information kring användare
 export const patchUser = (req, res) => {
   const { id } = req.params;
   const { name, email } = req.body;
@@ -152,5 +156,3 @@ export const patchUser = (req, res) => {
     res.json({ message: "Användarinformation uppdaterad" });
   });
 };
-
-
