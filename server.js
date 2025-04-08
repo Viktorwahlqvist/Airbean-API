@@ -2,13 +2,11 @@ import express from "express";
 import db from "./database/db.js";
 import { OnlineShopRouter } from "./routes/onlineshopRoutes.js";
 import { assortmentRouter } from "./routes/assortmentRoutes.js";
-import userRoutes from "./routes/userRoutes.js"
+import userRoutes from "./routes/userRoutes.js";
 import { aboutRouter } from "./routes/aboutRoutes.js";
-
 // Initiera appen
 const app = express();
 const PORT = 3000;
-
 app.use(express.json());
 app.use("/about", aboutRouter);
 app.use("/assortment", assortmentRouter);
@@ -28,9 +26,8 @@ app.listen(PORT, (error) => {
     return console.log(`Couldn't start server... Error: ${error}`);
   }
   console.log(`Server is running on http://localhost:${PORT}`);
-
 });
 
-app.get("/", (req,res) => {
-  res.send("Välkommen till AIRBEAN-API")
+app.get("/", (req, res) => {
+  res.send("Välkommen till AIRBEAN-API");
 });

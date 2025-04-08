@@ -4,6 +4,7 @@ import {
   addToCategories,
   addToMenu,
   deleteCategories,
+  deleteItemFromCart,
   deleteMenu,
   getCart,
   getCategories,
@@ -11,6 +12,7 @@ import {
   getHot,
   getMenu,
   patchCategories,
+  patchItemInCart,
   patchMenu,
   putMenu,
 } from "../controllers/onlineshopController.js";
@@ -70,4 +72,7 @@ OnlineShopRouter.get("/cart", getCart);
 
 OnlineShopRouter.post("/cart", addItemToCart);
 
-OnlineShopRouter.patch("/cart/:orderId/:itemsId");
+OnlineShopRouter.patch("/cart/:orderId/:itemsId", patchItemInCart);
+
+// Ta bort en vara från order
+OnlineShopRouter.delete("/cart/:itemId", deleteItemFromCart);
