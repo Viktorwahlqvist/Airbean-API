@@ -11,7 +11,7 @@ userRoutes.get("/users/:id", getUserById) // Hämta en användare med Id
 userRoutes.post("/users", addUser); //Skapa en användare
 
 // PATCH request med routes
-
+userRoutes.patch("/users/:id", patchUser);
 // DELETE request med routes
 userRoutes.delete("/users/:id", deleteUserById);
 
