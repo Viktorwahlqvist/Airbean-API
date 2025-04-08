@@ -112,52 +112,81 @@ export const deleteProduct = (req, res) => {
 
 // Kategorier, sortera
 export const getSortedItems = (req, res) => {
-    const sortBy = req.query.sort || "title"; // Sorts by Title as default 
-    const sortOrder = req.query.order && ['asc', 'desc'].includes(req.query.order.toLowerCase()) // Converts provided value to lowercase
-        ? req.query.order.toUpperCase()
-        : 'ASC';
+    // Skapar ett objekt som mappar användarens val (från query-parametern) till faktiska kolumnnamn i databasen
+    const sortMap = {
+        title: 'items.title',
+        price: 'items.price',
+        category: 'category.name'
+    };
 
-    const { country, type, minPrice, maxPrice } = req.query;
-    let query = "SELECT * FROM items";
-    let params = [];
-    let conditions = [];
+    // Hämtar sorteringsparametern från querystring (t.ex. ?sort=price)
+    const sortByInput = req.query.sort || "title"; // Om inget anges, sortera på "title"
+    
+    // Kollar om användarens val finns i vår map, annars används "items.title" som standard
+    const sortBy = sortMap[sortByInput.toLowerCase()] || 'items.title';
 
-    if (country) {
-        conditions.push("country = ?");
-        params.push(country);
+    // Hämtar sorteringsordningen från querystring (?order=desc), annars "ASC" (stigande)
+    const sortOrder = req.query.order && ['asc', 'desc'].includes(req.query.order.toLowerCase())
+        ? req.query.order.toUpperCase() // Om korrekt ordning anges, använd den
+        : 'ASC'; // Annars standardvärde "ASC"
+
+    // Plockar ut filtreringsparametrar från querystring
+    const { category, minPrice, maxPrice } = req.query;
+
+    // Startar SQL-frågan med att välja data och ansluter tabellerna
+    let query = `
+        SELECT 
+            items.title, 
+            items.desc, 
+            items.price, 
+            category.name AS category_name
+        FROM items
+        JOIN category ON items.category_id = category.id
+    `;
+
+    let params = []; // Här samlar vi värdena som ska skickas till databasen
+    let conditions = []; // Här bygger vi upp våra WHERE-villkor
+
+    // Om användaren filtrerar på kategori (category), lägg till ett villkor
+    if (category) {
+        conditions.push("category.name = ?");
+        params.push(category); // Parametriserad fråga för säkerhet (skydd mot SQL injection)
     }
 
-    if (type) {
-        conditions.push("type = ?");
-        params.push(type);
-    }
-
+    // Om minsta pris är angivet, lägg till som villkor
     if (minPrice) {
-        conditions.push("price >= ?");
+        conditions.push("items.price >= ?");
         params.push(minPrice);
     }
 
+    // Om högsta pris är angivet, lägg till som villkor
     if (maxPrice) {
-        conditions.push("price <= ?");
+        conditions.push("items.price <= ?");
         params.push(maxPrice);
     }
 
+    // Om några filter är satta, bygg WHERE-delen av frågan
     if (conditions.length > 0) {
         query += " WHERE " + conditions.join(" AND ");
     }
 
+    // Lägg till sorteringsdelen i slutet av SQL-frågan
     query += ` ORDER BY ${sortBy} ${sortOrder}`;
 
     try {
+        // Förbereder och kör frågan mot databasen
         const stmt = db.prepare(query);
-        const items = stmt.all(...params); // More than one value accepted
+        const items = stmt.all(...params); // Kör SQL-frågan med parametrarna
 
+        // Om inga produkter hittades, skicka 404 som svar
         if (items.length === 0) {
-            return res.status(404).json({ message: "Hittade inga kategorier" });
+            return res.status(404).json({ message: "Hittade inga produkter" });
         }
 
-        res.json(items); // Sends back response as json
+        // Om produkter hittades, skicka tillbaka dem som JSON-svar
+        res.json(items);
     } catch (error) {
+        // Om något gick fel i databasen, skicka felmeddelande
         res.status(500).json({ error: "Databasfel" });
     }
 };
