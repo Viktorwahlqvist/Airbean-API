@@ -1,8 +1,29 @@
 import express from "express";
-const router = express.Router();
+import {
+  getAllProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  replaceProduct,
+  getSortedItems,
+} from "../controllers/assortmentController.js";
 
-router.get("/", (req, res) => {
-  res.send("Assortment works!");
-});
+export const assortmentRouter = express.Router(); // Router för sortiment
 
-export default router;
+// GET, hämta
+assortmentRouter.get("/", getAllProducts);
+
+// GET, sortera
+assortmentRouter.get("/sorted", getSortedItems);
+
+// POST, lägg till ny
+assortmentRouter.post("/", addProduct);
+
+//PUT
+assortmentRouter.put("/:id", replaceProduct);
+
+// PATCH, updatera produkt med id
+assortmentRouter.patch("/:id", updateProduct);
+
+// DELETE, radera produkt med id
+assortmentRouter.delete("/:id", deleteProduct);

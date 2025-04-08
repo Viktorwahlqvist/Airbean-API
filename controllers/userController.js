@@ -1,4 +1,3 @@
-
 import { nanoid } from "nanoid";
 import db from "../database/db.js";
 
