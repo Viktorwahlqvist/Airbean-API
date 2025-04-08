@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import express from "express"; 
 import { getAllProducts, addProduct, updateProduct, deleteProduct, replaceProduct, getSortedItems } from "../controllers/assortmentController.js";
 
@@ -35,7 +34,6 @@ assortmentRouter.delete("/:id", deleteProduct);
 
 
 
-=======
 import express from "express";
 const router = express.Router();
 
@@ -44,4 +42,3 @@ router.get("/", (req, res) => {
 });
 
 export default router;
->>>>>>> origin
