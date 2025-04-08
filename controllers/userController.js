@@ -116,5 +116,30 @@ export const deleteUserById = (req, res) => {
 
 // Ändra viss information kring användare
 export const patchUser = (req, res) => {
-  
+  const {id} = req.params;
+  const {name, email} = req.body;
+
+  //Skapar en variabel med en array för att lagra nya uppdateringar
+  const userChanges = [];
+  const values = [];
+// Nytt namn pushas in i arrayen
+  if(name){
+    userChanges.push("name=?");
+    values.push(name);
+  }
+// Ny mejl pushas in i arrayen
+  if(email){
+    userChanges.push("email=?");
+    values.push(email);    
+  }
+// Om varken namn eller mail är ifyllt så retuneras ett status 400 error meddelande
+  if (userChanges === 0){
+    res.status(400).json({message: "Namn eller mejl inte ifyllt"});
+  }
+
+  // nya ändringarna pushas in på id.
+  values.push(id);
+
+
 };
+
