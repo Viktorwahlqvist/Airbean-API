@@ -119,4 +119,3 @@ export const patchUser = (req, res) => {
   
 };
 
-// Hämta kopplade ordrar till id
