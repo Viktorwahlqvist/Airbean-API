@@ -32,10 +32,12 @@ export const addProduct = (req, res) => {
     );
     const result = stmt.run(title, desc, price); //prepare för säker inmatning
 
-    res.status(201).json({
-      message: "Produkt lagt till",
-      productId: result.lastInsertRowid,
-    });
+    res
+      .status(201)
+      .json({
+        message: "Produkt lagt till",
+        productId: result.lastInsertRowid,
+      });
   } catch (error) {
     res.status(500).json({ error: "Databasfel" });
   }
@@ -135,8 +137,8 @@ export const getSortedItems = (req, res) => {
 
   const { country, type, minPrice, maxPrice } = req.query;
   let query = "SELECT * FROM items";
-  let params = ["price >= ?"];
-  let conditions = [40];
+  let params = [];
+  let conditions = [];
 
   if (country) {
     conditions.push("country = ?");
