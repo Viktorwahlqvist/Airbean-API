@@ -5,15 +5,15 @@ import db from "../database/db.js"; // Importerar databasen
 export const getAllProducts = (req, res) => {
     try {
         const stmt = db.prepare("SELECT title, desc, price FROM items ORDER BY title ASC"); // Bokstavsordning (kategori) 
-        const products = stmt.all(); // Hämtar allar produkter
+        const products = stmt.all(); // Hämtar alla produkter
 
         if (products.length === 0) {
-            return res.status(404).json({ message: "No products" });
+            return res.status(404).json({ message: "No products found in database" });
           }
 
         res.json(products); 
     } catch (error) {
-        res.status(500).json({ error: "Databasfel"});
+        res.status(500).json({ error: "Database error"});
     }
 };
 
@@ -22,7 +22,7 @@ export const addProduct = (req, res) => {
     const { title, desc, price } = req.body; //Object
 
     if (!title || !desc || !price) {
-        return res.status(400).json({ error: "Alla fält måste fyllas i"});
+        return res.status(400).json({ error: "All fields are required. Please provide a title, description, and price."});
     }
 
     try {
@@ -31,9 +31,9 @@ export const addProduct = (req, res) => {
         );
         const result = stmt.run(title, desc, price); //prepare för säker inmatning
 
-        res.status(201).json({ message: "Produkt lagt till", productId: result.lastInsertRowid });
+        res.status(201).json({ message: "Product successfully added to the database.", productId: result.lastInsertRowid });
     } catch (error) {
-        res.status(500).json({ error: "Databasfel"});
+        res.status(500).json({ error: "Database error"});
     }
 };
 
@@ -43,13 +43,13 @@ export const replaceProduct = (req, res) => {
     const { title, desc, price } = req.body;
 
     if (!title || !desc || !price) {
-        return res.status(400).json({ error: "Alla fält (title, desc, price) måste vara med" });
+        return res.status(400).json({ error: "All fields (title, description, and price) must be provided." });
     }
 
     try {
         const existingProduct = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
         if (!existingProduct) {
-            return res.status(404).json({ error: "Produkt hittades inte" });
+            return res.status(404).json({ error: "Product not found." });
         }
 
         const stmt = db.prepare(
@@ -57,9 +57,9 @@ export const replaceProduct = (req, res) => {
         );
         stmt.run(title, desc, price, id);
 
-        res.status(200).json({ message: "Produkten har ersatts med ny data" });
+        res.status(200).json({ message: "Product successfully replaced with the new data." });
     } catch (error) {
-        res.status(500).json({ error: "Databasfel" });
+        res.status(500).json({ error: "Database error." });
     }
 };
 
@@ -70,13 +70,13 @@ export const updateProduct = (req, res) => {
     const { title, desc, price } = req.body;
 
     if (!title && !desc && !price) {
-        return res.status(400).json({ error: "Minst ett fält måste uppdateras" });
+        return res.status(400).json({ error: "At least one field (title, description, or price) must be updated." });
     }
 
     try {
         const existingProduct = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
         if (!existingProduct) {
-            return res.status(404).json({ error: "Produkt hittades inte" });
+            return res.status(404).json({ error: "Product not found." });
         }
 
         const stmt = db.prepare(
@@ -84,9 +84,9 @@ export const updateProduct = (req, res) => {
         );
         stmt.run(title || existingProduct.title, desc || existingProduct.desc, price || existingProduct.price, id);
 
-        res.status(200).json({ message: "Produktet är uppdaterat" });
+        res.status(200).json({ message: "Product successfully updated." });
     } catch (error) {
-        res.status(500).json({ error: "Databasfel" });
+        res.status(500).json({ error: "Database error." });
     }
 };
 
@@ -97,15 +97,15 @@ export const deleteProduct = (req, res) => {
     try {
         const existingProduct = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
         if (!existingProduct) {
-            return res.status(404).json({ error: "Produkt hittades inte" });
+            return res.status(404).json({ error: "Product not found." });
         }
 
         const stmt = db.prepare("DELETE FROM items WHERE id = ?");
         stmt.run(id);
 
-        res.status(200).json({ message: "Produkt raderad" });
+        res.status(200).json({ message: "Product successfully deleted." });
     } catch (error) {
-        res.status(500).json({ error: "Databasfel" });
+        res.status(500).json({ error: "Database error." });
     }
 };
 
