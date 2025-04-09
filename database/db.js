@@ -21,6 +21,7 @@ db.prepare(
       order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
       user_id TEXT NOT NULL,
       order_status TEXT NOT NULL DEFAULT 'pending',
+      delivery DATETIME,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
   `
@@ -58,7 +59,7 @@ db.prepare(
 // Trigger för att ta bort order om inga order_items finns kvar
 db.prepare(
   `
-    CREATE TRIGGER delete_order_if_no_items_left
+    CREATE TRIGGER IF NOT EXISTS delete_order_if_no_items_left
     AFTER DELETE ON order_items
     FOR EACH ROW
     BEGIN
