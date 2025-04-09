@@ -42,15 +42,9 @@ export const addToMenu = (req, res) => {
 //  (PATCH) controller för att ändra en eller flera saker i menyn men inte hela.
 export const patchMenu = (req, res) => {
   const { title, desc, price, in_stock, category_id } = req.body;
-  // Id validering middleware, tillfällig för test
-  if (!req.id) {
-    return res.status(400).json({ error: `No ID` });
-  }
-  // Validering kommer med middleware.
-  //array för det som updateras.
   const updates = [];
   const params = [];
-
+  // Validering från bodyn om den ska ändras.
   if (title && typeof title === "string" && title.trim() !== "") {
     updates.push("title = ?");
     params.push(title);
@@ -91,13 +85,7 @@ export const patchMenu = (req, res) => {
 
 // (PUT) Ersätta hela (kaffe sorten) i menyn.
 export const putMenu = (req, res) => {
-  // Validering i middleware samma som addtoMenu
-  // id middleware lägger till en för test
-
   const { title, desc, price, in_stock, is_cold, category_id } = req.body;
-  if (!req.id) {
-    return res.status(400).json({ error: `No ID` });
-  }
   try {
     const stmt = db.prepare(`
       UPDATE items SET title = ?, desc = ?, price = ?, in_stock = ?, is_cold = ?, category_id = ?
@@ -127,10 +115,6 @@ export const putMenu = (req, res) => {
 
 //  (DELETE) ta bort från menyn med id
 export const deleteMenu = (req, res) => {
-  if (!req.id) {
-    return res.status(400).json({ error: `No ID` });
-  }
-
   try {
     const stmt = db.prepare(`
       DELETE FROM items WHERE id = ?`);
@@ -150,8 +134,6 @@ export const deleteMenu = (req, res) => {
 // (GET) Controllers för hämta alla categories, eller visa alla produkter med en viss kateori.
 export const getCategories = (req, res) => {
   const query = req.query.q;
-
-  console.log(`type `, typeof query);
 
   if (query && query.trim() !== "") {
     try {
@@ -190,12 +172,6 @@ export const getCategories = (req, res) => {
 // (POST) Controller för att lägga till i categories
 export const addToCategories = (req, res) => {
   const { name } = req.body;
-  // Liten validering här
-  if (!name || typeof name !== "string") {
-    return res
-      .status(400)
-      .json({ error: "Category name is required and must be a string" });
-  }
   try {
     const stmt = db.prepare(`
       INSERT INTO category (name) VALUES (?)`);
@@ -217,14 +193,7 @@ export const addToCategories = (req, res) => {
 export const patchCategories = (req, res) => {
   // Middleware validering och parse för ID
   const { name } = req.body;
-  if (!req.id) {
-    return res.status(400).json({ error: `No ID` });
-  }
-  if (!name || name.trim() !== "" || typeof name !== "string") {
-    return res
-      .status(400)
-      .json({ error: `Name is required and must be a string` });
-  }
+
   try {
     const stmt = db.prepare(`
       UPDATE category SET name = ? WHERE id = ?`);
@@ -246,10 +215,6 @@ export const patchCategories = (req, res) => {
 
 // (DELETE) controller för att ta bort en kategori
 export const deleteCategories = (req, res) => {
-  if (!req.id) {
-    return res.status(400).json({ error: `No ID` });
-  }
-
   try {
     const stmt = db.prepare(`
       DELETE FROM category WHERE id = ?`);
@@ -305,14 +270,35 @@ export const getHot = (req, res) => {
 };
 
 // Controllerför varukorg
-export const getCart = (req, res) => {};
+export const getCart = (req, res) => {
+  try {
+    const stmt = db.prepare(`
+      SELECT orders.id, strftime('%Y-%m-%d %H:%M:%S', orders.order_date, 'unixepoch') AS order_date,
+      orders.order_status, items.title, order_items.quantity
+      FROM users
+      JOIN orders ON users.id = orders.user_id
+      JOIN order_items ON orders.id = order_items.order_id
+      JOIN items ON order_items.item_id = items.id
+      WHERE users.id = ?`);
+
+    const result = stmt.all(req.user_id);
+
+    if (result.length === 0) {
+      return res
+        .status(400)
+        .json({ error: `No active orderes for ID: ${req.user_id}` });
+    }
+    res.status(200).json({ Orders: result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // Controller för lägga till vara i varukorgen.
 export const addItemToCart = (req, res) => {
   // Tillfällig tills vi har en middlware
   const { user_id, items } = req.body;
-  console.log(user_id, items);
-  console.log("körs");
 
   /* Validering för att koll så användaren har skickat in 
      ett user_id samt en array med items som ska innehålla item_id + quantity*/
@@ -321,6 +307,12 @@ export const addItemToCart = (req, res) => {
       .status(400)
       .json({ error: `User_id is required and items as an array` });
   }
+
+  // Kolla om det finns en order redan med pending så vi inte skapar en ny.
+  const checkOrder = db.prepare(`
+    SELECT id from orders WHERE user_id = ? AND order_status = 'pending'`);
+  const resultCheckOrder = checkOrder.get(user_id);
+  console.log("resultCheckOrder:", resultCheckOrder);
   /* förbereder 2 statement så vi kan köra med transaction. eftersom att vi vill
   kunna få rollback om en av insert inte går igenom. */
   const stmtOrder = db.prepare(`
@@ -330,8 +322,17 @@ export const addItemToCart = (req, res) => {
     INSERT INTO order_items (order_id, item_id, quantity) VALUES(?, ?, ?)`);
 
   const transaction = (db.transaction = (user_id, items) => {
-    const result = stmtOrder.run(user_id);
-    const orderId = result.lastInsertRowid;
+    let orderId;
+    // Kollar om en order redan finns och är pending.
+    console.log(resultCheckOrder);
+
+    if (resultCheckOrder) orderId = resultCheckOrder.id;
+    // Om inte order finns skapa ny order.
+    else {
+      const result = stmtOrder.run(user_id);
+      orderId = result.lastInsertRowid;
+    }
+
     /*Valde det skulle vara en array så vi kunde mappa igenom varje object även 
     det bara är ett objekt så ska det ligga i en array.*/
     items.map((item) => {
@@ -428,5 +429,77 @@ export const deleteItemFromCart = (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.messag });
+  }
+};
+
+// Controller för att slutföra beställning
+export const postCheckout = (req, res) => {
+  const stmtCheckout = db.prepare(`
+    SELECT orders.id, items.title, order_items.quantity, items.price
+    FROM users
+    JOIN orders ON users.id = orders.user_id
+    JOIN order_items ON orders.id = order_items.order_id
+    JOIN items ON order_items.item_id = items.id
+    WHERE users.id = ?;
+  `);
+
+  const stmtUpdateDelivery = db.prepare(`
+    UPDATE orders
+     SET delivery = DATETIME('now', '+' || (1 + (ABS(RANDOM()) % 1)) || ' days'),
+     order_status = ?
+     WHERE user_id = ? AND id = ?;
+  `);
+
+  // Starta transaktionen korrekt
+  const transaction = db.transaction(() => {
+    const resultCheckout = stmtCheckout.all(req.user_id);
+    console.log(resultCheckout);
+
+    resultCheckout.map((checkout) => {
+      stmtUpdateDelivery.run(`Shipped`, req.user_id, checkout.id);
+    });
+
+    const totalPrice = resultCheckout.reduce((total, item) => {
+      return total + item.quantity * item.price;
+    }, 0);
+
+    return { resultCheckout, totalPrice };
+  });
+
+  try {
+    const { resultCheckout, totalPrice } = transaction();
+    if (resultCheckout.length === 0) {
+      return res.status(400).json({ error: "No orders found for this user" });
+    }
+    console.log(totalPrice);
+
+    res.status(200).json({ resultCheckout, Totalcost: totalPrice });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+// Controller för att hämta information om leverans.
+export const getDelivery = (req, res) => {
+  try {
+    const stmt = db.prepare(`
+      SELECT items.title, order_items.quantity, orders.delivery, orders.order_status
+      FROM orders
+      JOIN order_items ON orders.id = order_items.order_id
+      JOIN items ON order_items.item_id = items.id
+      WHERE orders.user_id = ? AND orders.order_status = 'Shipped';
+  `);
+    const result = stmt.all(req.user_id);
+    console.log(result);
+
+    if (result.changes === 0) {
+      return res.status(400).json({
+        error: `No orders with user ID ${req.user_id} please visit Checkout`,
+      });
+    }
+    res.status(200).json({ result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };
