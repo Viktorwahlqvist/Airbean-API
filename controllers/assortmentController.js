@@ -1,6 +1,5 @@
 import db from "../database/db.js"; // Importerar databasen
 
-
 // GET för att hämta alla produkter
 export const getAllProducts = (req, res) => {
     try {
@@ -15,21 +14,22 @@ export const getAllProducts = (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Database error"});
     }
+
 };
 
 // POST för att lägga till en ny produkt
 export const addProduct = (req, res) => {
-    const { title, desc, price } = req.body; //Object
+  const { title, desc, price } = req.body; //Object
 
     if (!title || !desc || !price) {
         return res.status(400).json({ error: "All fields are required. Please provide a title, description, and price."});
     }
 
-    try {
-        const stmt = db.prepare(
-            "INSERT INTO items (title, desc, price) VALUES (?, ?, ?)"
-        );
-        const result = stmt.run(title, desc, price); //prepare för säker inmatning
+  try {
+    const stmt = db.prepare(
+      "INSERT INTO items (title, desc, price) VALUES (?, ?, ?)"
+    );
+    const result = stmt.run(title, desc, price); //prepare för säker inmatning
 
         res.status(201).json({ message: "Product successfully added to the database.", productId: result.lastInsertRowid });
     } catch (error) {
@@ -39,8 +39,8 @@ export const addProduct = (req, res) => {
 
 // PUT för att ersätta en produkt med helt nytt innehåll
 export const replaceProduct = (req, res) => {
-    const { id } = req.params;
-    const { title, desc, price } = req.body;
+  const { id } = req.params;
+  const { title, desc, price } = req.body;
 
     if (!title || !desc || !price) {
         return res.status(400).json({ error: "All fields (title, description, and price) must be provided." });
@@ -63,11 +63,10 @@ export const replaceProduct = (req, res) => {
     }
 };
 
-
 // PATCH för att updatera produkt via ID
 export const updateProduct = (req, res) => {
-    const { id } = req.params;
-    const { title, desc, price } = req.body;
+  const { id } = req.params;
+  const { title, desc, price } = req.body;
 
     if (!title && !desc && !price) {
         return res.status(400).json({ error: "At least one field (title, description, or price) must be updated." });
@@ -92,7 +91,7 @@ export const updateProduct = (req, res) => {
 
 // DELETE för att ta bort produkt via ID
 export const deleteProduct = (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
     try {
         const existingProduct = db.prepare("SELECT * FROM items WHERE id = ?").get(id);
@@ -107,8 +106,8 @@ export const deleteProduct = (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Database error." });
     }
-};
 
+};
 
 // Kategorier, sortera
 export const getSortedItems = (req, res) => {
