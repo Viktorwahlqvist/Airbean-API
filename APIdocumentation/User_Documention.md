@@ -29,13 +29,13 @@ COMMIT
 ## GET requests
 Hämta alla användare och viss användare med angivet id vid registrering. 
 
-- http:localhost:3000/users 
-Hämtar alla användare som registrerats på databasen
+- http://localhost:3000/users 
+Hämtar alla användare som registrerats på databasen.
 
 - http://localhost:3000/users:id
 Hämtar information om en användare via ID som blivit tilldelat till den personen som skapats. 
 
-- Exempel
+- Exempel på request
 
 GET http:localhost:3000/users 
 

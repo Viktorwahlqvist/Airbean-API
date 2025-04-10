@@ -55,7 +55,7 @@ PUT /assortment/:id
 - http://localhost:3000/assortment/3
 - Uppdaterar en hel produkt med helt nytt innehåll
 
-Exemel på anrop:
+Exempel på anrop:
 Framgångsrikt svar (200 OK)
 {
   "message": "Produkten har uppdaterats",
