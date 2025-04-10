@@ -180,13 +180,13 @@ export const getSortedItems = (req, res) => {
 
         // Om inga produkter hittades, skicka 404 som svar
         if (items.length === 0) {
-            return res.status(404).json({ message: "Hittade inga produkter" });
+            return res.status(404).json({ message: "No products found" });
         }
 
         // Om produkter hittades, skicka tillbaka dem som JSON-svar
         res.json(items);
     } catch (error) {
         // Om något gick fel i databasen, skicka felmeddelande
-        res.status(500).json({ error: "Databasfel" });
+        res.status(500).json({ error: "Database error" });
     }
 };
