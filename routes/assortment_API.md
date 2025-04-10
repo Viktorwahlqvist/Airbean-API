@@ -15,11 +15,11 @@ Exempel på anrop:
 Fråmgångsrikt svar (200 OK)
 {
     "menu":[
-      {
-        "id":1,
-        "title":"Bryggkaffe",
-        "desc":"Bryggd på månadens bönor.",
-        "price":39
+      
+        {
+		"title": "Affogato",
+		"desc": "En kaffedrink med vaniljglass som toppas med varmt espresso.",
+		"price": 45
       }
     ]
 }
@@ -31,7 +31,7 @@ Fel (500-Serverfel)
 
 
 POST /assortment
-- http://localhost:3000/assortment
+- http://localhost:3000/assortment/
 - Lägger till en ny produkt i sortimentet.
 
 Exempel på anrop:
@@ -39,10 +39,9 @@ Framgångsrikt svar (201 Created)
 {
   "message": "Produkten har lagts till",
   "product": {
-    "id":3,
-        "title":"Cappuccino",
-        "desc":"Bryggd på månadens bönor.",
-        "price":49
+    "title": "Cappucciono Deluxe",
+    "desc": "En cappuccino med extra skummad mjölk och kanel.",
+    "price": 50
   }
 }
 
