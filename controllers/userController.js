@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid";
 import db from "../database/db.js";
+import bcrypt from "bcryptjs";
 
 // Lägga till en ny användare
 export const addUser = async (req, res) => {
@@ -27,7 +28,11 @@ export const addUser = async (req, res) => {
     // Transaction för att göra det möjligt att ha inlogg och användarinformation på samma endpoint.
     // Transaction körs och kollar så att operationerna går ihop annars funkar det inte att lägga till användare.
     const transaction = db.transaction(() => {
+
+      // Loggar id och password i consolen för att se att det skapas ordentligt. 
       console.log(userId);
+      console.log(password);
+      
 
       const resultUsers = stmtUsers.run(userId, name, email);
       const resultUsers_auth = stmtUsers_auth.run(userId, username, hashedPassword);
