@@ -1,10 +1,10 @@
 API-dokumentation för Kontaktinformation
 
 - Översikt
-Detta API möjliggör hämtning av kontaktinformation för Airbean. Endpoints returnerar kontaktuppgifter såsom adress, telefonnummer, email och länkar till sociala medier. Anropet sker via en GET-request mot /contact.
+Detta API möjliggör hämtning av kontaktinformation för Airbean. Endpoints returnerar kontaktuppgifter såsom adress, telefonnummer, email och länkar till sociala medier. Anropet sker via en GET-request mot /about.
 
-GET /contact
-- Endpoint: http://localhost:3000/contact
+GET /about
+- Endpoint: http://localhost:3000/about
 - Beskrivning: Hämtar kontaktinformationen för Airbean.
 
 Exempel på anrop:
