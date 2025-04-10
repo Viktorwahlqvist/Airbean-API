@@ -1,6 +1,5 @@
 # API dokumentation kring USERS
-
-- Översikt:
+Översikt:
 Går under endpoint /users. Under denna skapas anvädare, retunera användare med användning av ID, ta bort en användare och även ändra användarinformation.
 
 Använder userValidation för att validera all kod och därför använda den i våra routes. 
@@ -74,19 +73,58 @@ retunerar
 	},
 
 
-### GET request gjort för att kunna beställa även som gäst. Funktion skapad som en post men hämtas med en get request. 
-Den som beställer som gäst får ett specifikt gäst id och sparas inte i databasen. 
+### GET request
+Mötlighet till att kunna beställa även som gäst. Funktion skapad som en post men hämtas med en get request. 
+Den som beställer som gäst får ett specifikt gäst id och sparas inte i databasen men kopplas ihop med order med order id.
+
+- Body:
+{
 namn: "-"
 email:"-"
+}
 
 - Exempel: 
 GET http://localhost:3000/guest
 retuneras
-** {
+{
 	"message": "Gäst skapad",
 	"user_id": "GUEST_zrZ9ZDR-8utZET680uh8v"
-}**
+}
 
 ## DELETE requests
 
+Att ta bort en användare hanteras likadant som att hämta en användare med id. 
+http://localhost:3000/users 
+userRoutes.delete("/users", userValidation, deleteUserById);
+id skickas in i bodyn och retunerat svar blir 
+{
+	"user_id": "hkB3JTf6FMxLIQFvVlYlu"
+}
+
+Console loggas
+DELETE FROM users WHERE id = 'hkB3JTf6FMxLIQFvVlYlu'
+Användare med hkB3JTf6FMxLIQFvVlYlu är raderad
+
 ## PATCH requests
+http://localhost:3000/api/users
+
+Användarinformation kan ändras med patch request. 
+Skickar in ny data med UPDATE för vår users TABLE. 
+
+- Exempel på en request:
+PATCH
+{
+	"user_id": "qaeQ9jPu8S2C4u0-tWDuL",
+	"name":"Sara",
+	"email": "Sara2mail@mail.se"
+}
+- retuneras med svar
+{
+	"message": "Användarens information är uppdaterad"
+
+}
+
+- Loggas i console 
+User Id validation succesful
+UPDATE users SET name = 'Sara', email = 'Sara2mail@mail.se'WHERE id = 'qaeQ9jPu8S2C4u0-tWDuL'
+
