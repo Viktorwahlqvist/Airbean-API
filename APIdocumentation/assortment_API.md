@@ -8,27 +8,30 @@ GET /assortment
 - http://localhost:3000/assortment
 - Hämtar alla produkter i sortimentet, sorterade alfabetiskt efter titel
 
+- http://localhost:3000/assortment/sorted?category=Kaffedrycker
+- Hämtar alla Kaffedrycker
+
 Exempel på anrop:
 Fråmgångsrikt svar (200 OK)
 {
     "menu":[
-      {
-        "id":1,
-        "title":"Bryggkaffe",
-        "desc":"Bryggd på månadens bönor.",
-        "price":39
+      
+        {
+		"title": "Affogato",
+		"desc": "En kaffedrink med vaniljglass som toppas med varmt espresso.",
+		"price": 45
       }
     ]
 }
 
 Fel (500-Serverfel)
 {
-    "error": "Databasfel"
+    "error": "Database error"
 }
 
 
 POST /assortment
-- http://localhost:3000/assortment
+- http://localhost:3000/assortment/
 - Lägger till en ny produkt i sortimentet.
 
 Exempel på anrop:
@@ -36,16 +39,15 @@ Framgångsrikt svar (201 Created)
 {
   "message": "Produkten har lagts till",
   "product": {
-    "id":3,
-        "title":"Cappuccino",
-        "desc":"Bryggd på månadens bönor.",
-        "price":49
+    "title": "Cappucciono Deluxe",
+    "desc": "En cappuccino med extra skummad mjölk och kanel.",
+    "price": 50
   }
 }
 
 Fel (400- Saknade fält)
 {
-  "error": "Alla fält måste fyllas i"
+  "error": "All fields are required. Please provide a title, description, and price."
 }
 
 
@@ -65,9 +67,9 @@ Framgångsrikt svar (200 OK)
   }
 }
 
-Fel (404 - Produkten finns inte)
+Fel (404 - Produkten hittades inte)
 {
-  "error": "Produkt hittades inte"
+  "error": "Product not found."
 }
 
 
@@ -89,7 +91,7 @@ Framgångsrikt svar (200 OK)
 
 Fel (400 - Ogiltigt värde)
 {
-    error: "Minst ett fält måste uppdateras"
+    error: "At least one field (title, description, or price) must be updated."
 }
 
 
@@ -103,9 +105,9 @@ Framgångsrikt svar (200 OK)
     "message": Produkt raderad"
 }
 
-Fel (404 - Produkten finns inte)
+Fel (404 - Produkten hittades inte)
 {
-    "error": "Produkt hittades inte"
+    "error": "Product not found."
 }
 
 
