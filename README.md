@@ -46,7 +46,7 @@ För att hantera och följa upp våra arbetsuppgifter och användarhistorier har
 
 ### Dokumentation:
 
-- [Assortment API-dokumentation](routes/assortment_API.md)
+- [APIdokumentation](routes/assortment_API.md)
 - [Användardokumentation](routes/User_Documention.md)
 ---
 
