@@ -8,6 +8,9 @@ GET /assortment
 - http://localhost:3000/assortment
 - Hämtar alla produkter i sortimentet, sorterade alfabetiskt efter titel
 
+- http://localhost:3000/assortment/sorted?category=Kaffedrycker
+- Hämtar alla Kaffedrycker
+
 Exempel på anrop:
 Fråmgångsrikt svar (200 OK)
 {
@@ -23,7 +26,7 @@ Fråmgångsrikt svar (200 OK)
 
 Fel (500-Serverfel)
 {
-    "error": "Databasfel"
+    "error": "Database error"
 }
 
 
@@ -45,7 +48,7 @@ Framgångsrikt svar (201 Created)
 
 Fel (400- Saknade fält)
 {
-  "error": "Alla fält måste fyllas i"
+  "error": "All fields are required. Please provide a title, description, and price."
 }
 
 
@@ -65,9 +68,9 @@ Framgångsrikt svar (200 OK)
   }
 }
 
-Fel (404 - Produkten finns inte)
+Fel (404 - Produkten hittades inte)
 {
-  "error": "Produkt hittades inte"
+  "error": "Product not found."
 }
 
 
@@ -89,7 +92,7 @@ Framgångsrikt svar (200 OK)
 
 Fel (400 - Ogiltigt värde)
 {
-    error: "Minst ett fält måste uppdateras"
+    error: "At least one field (title, description, or price) must be updated."
 }
 
 
@@ -103,9 +106,9 @@ Framgångsrikt svar (200 OK)
     "message": Produkt raderad"
 }
 
-Fel (404 - Produkten finns inte)
+Fel (404 - Produkten hittades inte)
 {
-    "error": "Produkt hittades inte"
+    "error": "Product not found."
 }
 
 

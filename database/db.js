@@ -59,7 +59,7 @@ db.prepare(
 // Trigger för att ta bort order om inga order_items finns kvar
 db.prepare(
   `
-    CREATE TRIGGER IF NOT EXISTS delete_order_if_no_items_left
+    CREATE TRIGGER IF NOT EXISTS  delete_order_if_no_items_left
     AFTER DELETE ON order_items
     FOR EACH ROW
     BEGIN
