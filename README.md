@@ -46,8 +46,8 @@ För att hantera och följa upp våra arbetsuppgifter och användarhistorier har
 
 ### Dokumentation:
 
-- [APIdokumentation](routes/assortment_API.md)
-- [Användardokumentation](routes/User_Documention.md)
+- [APIdokumentation]([routes/assortment_API.md](https://github.com/Viktorwahlqvist/Airbean-API/blob/main/APIdocumentation/Contact_APIdoc.md))
+
 ---
 
 
