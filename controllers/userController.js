@@ -104,15 +104,14 @@ export const getUsers = (req, res) => {
 
 // Hämta en användare med visst ID
 export const getUserById = (req, res) => {
-  const userId = req.params.id;
 
   // En try för att kunna hämta en användare utifrån tilldelat id
   try {
     const userIdstmt = db.prepare("SELECT * FROM users WHERE id = ?");
-    const userById = userIdstmt.get(userId);
+    const userById = userIdstmt.get(req.user_id);
 
     if (userById) {
-      console.log("User with id:", userById);
+      console.log("User with id:", userById.id);
       res.json(userById);
 
       return userById;
@@ -128,23 +127,22 @@ export const getUserById = (req, res) => {
 
 //Ta bort en användare
 export const deleteUserById = (req, res) => {
-  const userId = req.params.id;
 
   try {
     const deleteUserByIdstmt = db.prepare("DELETE FROM users WHERE id = ?");
-    const deleteUserResult = deleteUserByIdstmt.run(userId);
+    const deleteUserResult = deleteUserByIdstmt.run(req.user_id);
 
     // Om ändringar kring att hämta id från user table för att radera är större än inget så kommer
     // användaren raderas ifrån databasen
     if (deleteUserResult.changes > 0) {
-      console.log(`Användare med ${userId} är raderad`);
-      res.status(201).json({ message: `Användare med ${userId} är raderad` });
+      console.log(`Användare med ${req.user_id} är raderad`);
+      res.status(204).json({ message: `Användare med ${req.user_id} är raderad` });
     } else {
       // Om inte användaren med det ID man skickat med finns får man ett felmeddelande tillbaka
-      console.log(`Användare med id: ${userId} hittas inte`);
+      console.log(`Användare med id: ${req.user_id} hittas inte`);
       res
         .status(404)
-        .json({ message: `Användare med id: ${userId} hittas inte` });
+        .json({ message: `Användare med id: ${req.user_id} hittas inte` });
     }
 
     // Hämtar eventuell error om det finns någon
