@@ -10,7 +10,7 @@ export const getMenu = (req, res) => {
     if (result.length === 0) {
       return res.status(404).json({ message: `No items in stock` });
     }
-    res.status(200).json({ result });
+    res.status(200).json({ Menu });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -20,7 +20,6 @@ export const getMenu = (req, res) => {
 // (POST) Lägga till i menyn
 export const addToMenu = (req, res) => {
   const { title, desc, price, in_stock, is_cold, category_id } = req.body;
-  // Innan detta ska allt valideras med middleware.
   try {
     const stmt = db.prepare(`
         INSERT INTO items (title, desc, price, in_stock, is_cold, category_id) VALUES
@@ -134,7 +133,7 @@ export const deleteMenu = (req, res) => {
 // (GET) Controllers för hämta alla categories, eller visa alla produkter med en viss kateori.
 export const getCategories = (req, res) => {
   const query = req.query.q;
-
+  // Validering
   if (query && query.trim() !== "") {
     try {
       const stmt = db.prepare(`
@@ -159,7 +158,7 @@ export const getCategories = (req, res) => {
       const result = stmt.all();
 
       if (result.length === 0) {
-        return res.status(400).json({ error: `No categorys` });
+        return res.status(400).json({ error: `No categories` });
       }
       res.status(200).json(result);
     } catch (error) {
@@ -189,7 +188,7 @@ export const addToCategories = (req, res) => {
   }
 };
 
-// (PATCH) controller för att ändra en eller flera saker i categories men inte hela.
+// (PATCH) controller för att ändra  i categories.
 export const patchCategories = (req, res) => {
   // Middleware validering och parse för ID
   const { name } = req.body;
@@ -240,7 +239,7 @@ export const getCold = (req, res) => {
       WHERE is_cold = 1 AND in_stock = 1`);
     const result = stmt.all();
     if (result.length === 0) {
-      return res.status(400).json({ error: `No Cold drinks available.` });
+      return res.status(404).json({ error: `No Cold drinks available.` });
     }
     res.status(200).json(result);
   } catch (error) {
@@ -260,7 +259,7 @@ export const getHot = (req, res) => {
       WHERE is_cold = 0 AND in_stock = 1`);
     const result = stmt.all();
     if (result.length === 0) {
-      return res.status(400).json({ error: `No Hot drinks available.` });
+      return res.status(404).json({ error: `No Hot drinks available.` });
     }
     res.status(200).json(result);
   } catch (error) {
@@ -274,7 +273,7 @@ export const getCart = (req, res) => {
   try {
     const stmt = db.prepare(`
       SELECT orders.id, strftime('%Y-%m-%d %H:%M:%S', orders.order_date, 'unixepoch') AS order_date,
-      orders.order_status, items.title, order_items.quantity
+      orders.order_status, items.title, order_items.quantity, items.price
       FROM users
       JOIN orders ON users.id = orders.user_id
       JOIN order_items ON orders.id = order_items.order_id
@@ -285,10 +284,13 @@ export const getCart = (req, res) => {
 
     if (result.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .json({ error: `No active orderes for ID: ${req.user_id}` });
     }
-    res.status(200).json({ Orders: result });
+    const totalPrice = result.reduce((total, item) => {
+      return total + item.quantity * item.price;
+    }, 0);
+    res.status(200).json({ Cart: result, Totalcost: totalPrice });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -297,7 +299,6 @@ export const getCart = (req, res) => {
 
 // Controller för lägga till vara i varukorgen.
 export const addItemToCart = (req, res) => {
-  // Tillfällig tills vi har en middlware
   const { user_id, items } = req.body;
 
   /* Validering för att koll så användaren har skickat in 
@@ -363,6 +364,7 @@ export const addItemToCart = (req, res) => {
 export const patchItemInCart = (req, res) => {
   const { orderId, itemId } = req.params;
   const { quantity } = req.body;
+  console.log(orderId, itemId);
 
   if (!orderId || !itemId) {
     return res.status(400).json({ error: `Missing order id or item id` });
@@ -378,8 +380,14 @@ export const patchItemInCart = (req, res) => {
   }
   try {
     if (quantity === 0) {
-      const stmt = db.prepare(`DELETE FROM order_items WHERE item_id = ?`);
-      const result = stmt.run(itemId);
+      const stmt = db.prepare(
+        `DELETE FROM order_items WHERE item_id = ? AND order_id = ?
+        AND EXISTS (
+        SELECT 1 FROM orders WHERE orders.id = order_items.order_id 
+        AND orders.order_status = 'pending'
+    )`
+      );
+      const result = stmt.run(itemId, orderId);
       if (!result.changes) {
         return res.status(404).json({
           error: `Couldn't update quantity for item with ID: ${itemId}`,
@@ -388,8 +396,12 @@ export const patchItemInCart = (req, res) => {
       return res.status(204).send();
     }
     const stmt = db.prepare(`
-      UPDATE order_items SET quantity = ? WHERE item_id = ?`);
-    const result = stmt.run(itemId, quantity);
+      UPDATE order_items SET quantity = ? WHERE item_id = ? AND order_id = ?
+      AND EXISTS (
+      SELECT 1 FROM orders WHERE orders.id = order_items.order_id 
+      AND orders.order_status = 'pending'
+    )`);
+    const result = stmt.run(quantity, itemId, orderId);
 
     if (!result.changes) {
       return res
@@ -434,6 +446,28 @@ export const deleteItemFromCart = (req, res) => {
 
 // Controller för att slutföra beställning
 export const postCheckout = (req, res) => {
+  const coupon = [
+    {
+      coupon_id: "A1B2C3",
+      discount_percent: 10,
+      description: "10% off on your entire order.",
+    },
+    {
+      coupon_id: "D4E5F6",
+      discount_percent: 20,
+      description: "20% off on all drinks in the store.",
+    },
+  ];
+
+  const { userCoupon } = req.body;
+  let validCoupon = null;
+
+  if (userCoupon && userCoupon.trim().length !== 0) {
+    validCoupon = coupon.find((c) => c.coupon_id === userCoupon);
+  }
+
+  console.log(validCoupon);
+
   const stmtCheckout = db.prepare(`
     SELECT orders.id, items.title, order_items.quantity, items.price
     FROM users
@@ -449,8 +483,8 @@ export const postCheckout = (req, res) => {
      order_status = ?
      WHERE user_id = ? AND id = ?;
   `);
-
-  // Starta transaktionen korrekt
+  /* Startar en databastransaktion med alla insättningar,
+   så att vi kan rulla tillbaka ändringarna om något går fel.*/
   const transaction = db.transaction(() => {
     const resultCheckout = stmtCheckout.all(req.user_id);
     console.log(resultCheckout);
@@ -469,11 +503,21 @@ export const postCheckout = (req, res) => {
   try {
     const { resultCheckout, totalPrice } = transaction();
     if (resultCheckout.length === 0) {
-      return res.status(400).json({ error: "No orders found for this user" });
+      return res.status(404).json({ error: "No orders found for this user" });
     }
-    console.log(totalPrice);
+    const discountAmount = validCoupon
+      ? Math.round(totalPrice * (validCoupon.discount_percent / 100))
+      : 0;
 
-    res.status(200).json({ resultCheckout, Totalcost: totalPrice });
+    const totalAmount = validCoupon
+      ? Math.round(totalPrice * (1 - validCoupon.discount_percent / 100))
+      : totalPrice;
+
+    res.status(200).json({
+      resultCheckout,
+      Totalcost: totalAmount,
+      Discount: discountAmount ? discountAmount : "No Coupon used",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });

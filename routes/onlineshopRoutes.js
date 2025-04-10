@@ -50,7 +50,7 @@ OnlineShopRouter.delete("/menu/:id", idValidation, deleteMenu);
 // *************************************
 
 // Route med controller för att hämta alla sorter inom en specifik categories -
-// Eller visa alla olika categories som finns ?
+//
 OnlineShopRouter.get("/categories", getCategories);
 
 // Route med controller för lägga till i categories
@@ -80,15 +80,18 @@ OnlineShopRouter.get("/hot", getHot);
 // Alla routes för endpoint Varukorg.
 // ***********************************
 
-OnlineShopRouter.post("/checkcart", userValidation, getCart);
+// Hämta en varukort
+OnlineShopRouter.post("/cart", userValidation, getCart);
 
-OnlineShopRouter.post("/cart", addItemToCart);
+OnlineShopRouter.post("/cart/add", addItemToCart);
 
-OnlineShopRouter.patch("/cart/:orderId/:itemsId", patchItemInCart);
+OnlineShopRouter.patch("/cart/:orderId/:itemId", patchItemInCart);
 
 // Ta bort en vara från order
 OnlineShopRouter.delete("/cart/:itemId", deleteItemFromCart);
 
+// Slutföra köp, fungerar med kupong
 OnlineShopRouter.post("/checkout", userValidation, postCheckout);
 
+// Kolla leverans
 OnlineShopRouter.post("/delivery", userValidation, getDelivery);

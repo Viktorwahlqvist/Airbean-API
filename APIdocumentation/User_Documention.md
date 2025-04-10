@@ -1,8 +1,15 @@
 # API dokumentation kring USERS
 
 - Översikt:
-Går under endpoint /users och /users/:id. Under denna skapas anvädare och också för att retunera alla användare i databasen samt ändra iformation om användare.
-I vårat projekt har vi använt nanoid för att generera slumpat id i string format. 
+Går under endpoint /users.  Under denna skapas anvädare, retunera användare med användning av ID, ta bort en användare och även ändra användarinformation.
+
+Använder userValidation för att validera all kod och därför använda den i våra routes. 
+- Exempel på route: 
+userRoutes.post("/users", userValidation, getUserById);
+På detta sätt skrivs id in i bodyn när man ska hämta eller posta en användare. 
+
+
+I projektet har vi använt oss av nanoid för att generera slumpat id i sträng format. 
 Finns också kryptering för lösenord med bcryptjs.
 
 
@@ -35,7 +42,7 @@ Hämtar alla användare som registrerats på databasen.
 - http://localhost:3000/users:id
 Hämtar information om en användare via ID som blivit tilldelat till den personen som skapats. 
 
-- Exempel på request
+- Exempel på GET request
 
 GET http:localhost:3000/users 
 
@@ -65,13 +72,6 @@ GET http:localhost:3000/users
 		"email": "theresegrupp3@mail.se"
 	},
 
-GET http://localhost:3000/users/LXcK0ICCJR0iE7koauwai
-
-{
-	"id": "LXcK0ICCJR0iE7koauwai",
-	"name": "Sara",
-	"email": "saragrupp3@mail.se"
-}
 
 - GET request gjort för att kunna beställa kaffe även som gäst. Funktion skapad som en post men hämtas med en get request. 
 - Exempel: 
