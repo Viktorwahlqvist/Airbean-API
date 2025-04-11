@@ -45,10 +45,10 @@ För att hantera och följa upp våra arbetsuppgifter och användarhistorier har
 ---
 
 ### Dokumentation:
-[APIdokumentation](routes/assortment_API.md
-[APIdokumentation](routes/assortment_API.md
-[APIdokumentation](routes/assortment_API.md
-[APIdokumentation](routes/assortment_API.md
+- [APIdokumentation](routes/assortment_API.md
+- [APIdokumentation](routes/assortment_API.md
+- [APIdokumentation](routes/assortment_API.md
+- [APIdokumentation](routes/assortment_API.md
 ---
 
 
