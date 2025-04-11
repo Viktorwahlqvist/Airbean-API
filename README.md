@@ -45,10 +45,10 @@ För att hantera och följa upp våra arbetsuppgifter och användarhistorier har
 ---
 
 ### Dokumentation:
-- [APIdokumentation för Assortment](routes/assortment_API.md)
-- [APIdokumentation för Contact](routes/Contact_APIdoc.md)
-- [APIdokumentation för User](routes/User_Documention.md)
-- [APIdokumentation för OnlineShop](https://github.com/Viktorwahlqvist/Airbean-API/blob/main/APIdocumentation/OnlineShop_Documentation.md)
+[APIdokumentation](routes/assortment_API.md
+[APIdokumentation](routes/assortment_API.md
+[APIdokumentation](routes/assortment_API.md
+[APIdokumentation](routes/assortment_API.md
 ---
 
 
