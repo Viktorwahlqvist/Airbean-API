@@ -16,7 +16,7 @@ Finns också kryptering för lösenord med bcryptjs.
 Skapar ett unikt id som sträng med nanoid. 
 
 Två statements gjorda för att TABLE users och TABLE users_auth (som används vid inloggning), ska gå under samma endpoint vid skapandet av en 
-användare. 
+användare. Därav user validation.
 
 bycript används för att kryptera lösenordet som skapas med användaren, en säkerhetsåtgärd för 
 användaren då lösenordet inte kommer att sparas som det skapas i databasen, utan kommer att förvrängas om (vid detta fall) 10 gånger. 
@@ -31,10 +31,32 @@ INSERT INTO user_auth (user_id, username, password) VALUES ('kazDvtOc4R2oGAukRIR
 COMMIT**
 
 - Exempel på att lägga till användare:
+http://localhost:3000/api/users/add
 
+information om användare lämnas i bodyn för users table. 
+{
+	"name":"Sara",
+	"username": "SaraJohlu",
+	"email":"saragrupp3@mail.se",
+	"password":"Mittlösenord"
+}
 
-### En post request görs för att hämta en specifik användare med hjälp utav dess id. Är egentligen en GET request.
-- Exempel på att hämta en användare med id.
+Vid en lyckad skapning retuneras statuskod 201 med meddelande 
+{
+	"message": "Användare skapad",
+	"userId": "AVydR-Iknte4YisA9ZAt2"
+}
+
+statuskod 400 för en bad request ifall något fält har missats att fyllas i eller har fyllts i fel
+{
+	"error": "Alla fält måste fyllas i"
+}
+
+### En post request 
+görs för att hämta en specifik användare med hjälp utav dess id. Är egentligen en GET request.
+
+- Exempel på att hämta en användare med id. Det slumpade id:et skrivs in i bodyn för att hämta användare.
+- 
 http://localhost:3000/users
 
 ## GET requests
@@ -128,3 +150,8 @@ PATCH
 User Id validation succesful
 UPDATE users SET name = 'Sara', email = 'Sara2mail@mail.se'WHERE id = 'qaeQ9jPu8S2C4u0-tWDuL'
 
+
+## Samtliga request har statuskoder 
+- Lyckad request retuneras som status 201 OK
+- Bad request retuneras med 400 Bad request
+- Server error retuneras med 500 Server error
