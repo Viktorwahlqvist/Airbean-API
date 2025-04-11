@@ -337,6 +337,7 @@ export const addItemToCart = (req, res) => {
     /*Valde det skulle vara en array så vi kunde mappa igenom varje object även 
     det bara är ett objekt så ska det ligga i en array.*/
     items.map((item) => {
+      console.error("Items är inte en array:", items);
       // Om någon av items id eller item quatity i ett objekt så skrivs fel ut.
       if (!item.item_id || !item.quantity) {
         return res.status(400).json({ error: `Missin item or quantity.` });
@@ -440,7 +441,7 @@ export const deleteItemFromCart = (req, res) => {
     res.status(204).send();
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.messag });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -485,9 +486,19 @@ export const postCheckout = (req, res) => {
   `);
   /* Startar en databastransaktion med alla insättningar,
    så att vi kan rulla tillbaka ändringarna om något går fel.*/
-  const transaction = db.transaction(() => {
+  const transaction = (db.transaction = () => {
     const resultCheckout = stmtCheckout.all(req.user_id);
     console.log(resultCheckout);
+
+    if (!Array.isArray(resultCheckout)) {
+      return res
+        .status(500)
+        .json({ error: "Error: resultCheckout is not an array" });
+    }
+
+    if (resultCheckout.length === 0) {
+      return res.status(404).json({ error: "No orders found for this user" });
+    }
 
     resultCheckout.map((checkout) => {
       stmtUpdateDelivery.run(`Shipped`, req.user_id, checkout.id);
@@ -536,8 +547,8 @@ export const getDelivery = (req, res) => {
     const result = stmt.all(req.user_id);
     console.log(result);
 
-    if (result.changes === 0) {
-      return res.status(400).json({
+    if (!result.changes) {
+      return res.status(404).json({
         error: `No orders with user ID ${req.user_id} please visit Checkout`,
       });
     }
