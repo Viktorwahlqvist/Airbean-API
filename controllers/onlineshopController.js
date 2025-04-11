@@ -5,12 +5,12 @@ import db from "../database/db.js";
 export const getMenu = (req, res) => {
   try {
     const stmt = db.prepare(`
-        SELECT title, desc, price FROM items WHERE in_stock = 1 `);
+        SELECT id, title, desc, price FROM items WHERE in_stock = 1 `);
     const result = stmt.all();
     if (result.length === 0) {
       return res.status(404).json({ message: `No items in stock` });
     }
-    res.status(200).json({ Menu });
+    res.status(200).json({ Menu: result });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
